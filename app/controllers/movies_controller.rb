@@ -11,12 +11,18 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.select(:rating).distinct.pluck(:rating)
+    @selected_ratings = @all_ratings
+
     if params[:id] == 'title_header'
       @movies = Movie.order(:title)
       @title_hilite = 'hilite'
     elsif params[:id] == 'release_date_header'
       @movies = Movie.order(:release_date)
       @release_date_hilite = 'hilite'
+    elsif params[:ratings]
+      @selected_ratings = params[:ratings].keys.to_a
+      @movies = Movie.where(rating: @selected_ratings)
     else
       @movies = Movie.all
       @title_hilite = 'no-hilite'
