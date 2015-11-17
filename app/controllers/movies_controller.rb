@@ -8,25 +8,56 @@ class MoviesController < ApplicationController
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
+    print session[:movies]
   end
 
   def index
-    @all_ratings = Movie.select(:rating).distinct.pluck(:rating)
-    @selected_ratings = @all_ratings
 
-    if params[:id] == 'title_header'
-      @movies = Movie.order(:title)
-      @title_hilite = 'hilite'
-    elsif params[:id] == 'release_date_header'
-      @movies = Movie.order(:release_date)
-      @release_date_hilite = 'hilite'
+    print params
+
+    # calculate everytime in case there is new rating is added
+    @all_ratings = Movie.select(:rating).distinct.pluck(:rating)
+    
+    # debugging
+    print("\n")
+    print session.has_key?("session_started")
+    print("\n")
+    
+    if !session.has_key?("session_started")
+      session[:session_started] = true
+      session[:selected_ratings] = Movie.select(:rating).distinct.pluck(:rating)
+      @movies = session[:movies] = Movie.all
+    end
+    
+    if params[:title_sort]
+      session.delete(:release_date_hilite)
+      @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:title)
+      session[:title_hilite] = 'hilite'
+    elsif params[:release_date_sort]
+      session.delete(:title_hilite)
+      @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:release_date)
+      session[:release_date_hilite] = 'hilite'
     elsif params[:ratings]
-      @selected_ratings = params[:ratings].keys.to_a
-      @movies = Movie.where(rating: @selected_ratings)
+      session[:selected_ratings] = params[:ratings].keys.to_a
+      if session[:title_hilite]
+        @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:title)
+      elsif session[:release_date_hilite]
+        @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:release_date)
+      else
+        @movies = session[:movies] = Movie.where(rating: session[:selected_ratings])
+      end
     else
-      @movies = Movie.all
-      @title_hilite = 'no-hilite'
-      @release_date_hilite = 'no-hilite'
+      # session[:session_started] = false
+      print session.has_key?("title_hilite")
+      print("\n")
+      print session.has_key?("release_date_hilite")
+      print("\n")
+      if session[:title_hilite]
+        @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:title)
+      end
+      if session[:release_date_hilite]
+        @movies = session[:movies] = Movie.where(rating: session[:selected_ratings]).order(:release_date)
+      end
     end
     
   end

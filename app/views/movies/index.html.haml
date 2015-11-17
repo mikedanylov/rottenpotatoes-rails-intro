@@ -5,26 +5,26 @@
   Include: 
   - @all_ratings.each do |rating|
     = rating
-    = check_box_tag "ratings_#{rating}", "ratings[#{rating}]", @selected_ratings.include?(rating)
+    = check_box_tag "ratings[#{rating}]", "ratings[#{rating}]", session[:selected_ratings].include?(rating), id: "ratings_#{rating}"
   = submit_tag 'Refresh', id:"ratings_submit"
 
 %table#movies
   %thead
     %tr
-      %th{:class => "#{@title_hilite}"}
+      %th{:class => session[:title_hilite]}
         %a{:id => "title_header"}
-          = link_to 'Movie Title', movies_path({:id => "title_header"})
+          = link_to 'Movie Title', movies_path({:title_sort => true})
       %th Rating
-      %th{:class => "#{@release_date_hilite}"}
+      %th{:class => session[:release_date_hilite]}
         %a{:id => "release_date_header"}
-          = link_to 'Release Date', movies_path({:id => "release_date_header"})
+          = link_to 'Release Date', movies_path({:release_date_sort => true})
       %th More Info
   %tbody
-    - @movies.each do |movie|
+    - session[:movies].each do |movie|
       %tr
-        %td= movie.title 
-        %td= movie.rating
-        %td= movie.release_date
-        %td= link_to "More about #{movie.title}", movie_path(movie)
+        %td= movie[:title] 
+        %td= movie[:rating]
+        %td= movie[:release_date]
+        %td= link_to "More about #{movie[:title]}", movie_path(movie[:id])
 
 = link_to 'Add new movie', new_movie_path
