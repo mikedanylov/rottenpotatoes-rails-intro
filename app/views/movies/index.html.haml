@@ -25,7 +25,6 @@
         %td= movie[:title] 
         %td= movie[:rating]
         %td= movie[:release_date]
-        //%td= link_to "More about #{movie[:title]}", movie_path({:id => movie[:id]})
-        %td= link_to "More about #{movie[:title]}", controller: "movies", action: "show", id: movie[:id]
+        %td= link_to "More about #{movie[:title]}", movie_path({:id => movie[:id]})
 
 = link_to 'Add new movie', new_movie_path
